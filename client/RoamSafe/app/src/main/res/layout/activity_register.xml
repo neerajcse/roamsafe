@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:orientation="vertical"
+android:scrollbars="vertical"
+tools:context="com.example.roamsafe.app.RegisterActivity"
+    >
+
+<TextView
+    android:id="@+id/phone_label"
+    android:layout_width="match_parent"
+    android:layout_height="25dp"
+    android:text="Phone Number"
+    />
+
+<TextView
+    android:id="@+id/phone_value"
+    android:layout_width="match_parent"
+    android:layout_height="25dp"
+    android:text="xxx-xxx-xxxx"
+    />
+
+    <Button
+        android:id="@+id/register"
+        android:text="Register"
+        android:layout_width="match_parent"
+        android:layout_height="60dp" />
+
+<View
+    android:layout_width="fill_parent"
+    android:layout_height="5dp"
+    android:paddingTop="15dp"
+    android:layout_marginTop="5dp"
+    android:paddingBottom="15dp"
+    android:layout_marginBottom="15dp"
+    android:background="@android:color/darker_gray"/>
+
+<TextView
+    android:id="@+id/name_label"
+    android:layout_width="match_parent"
+    android:layout_height="25dp"
+    android:text="Name:"
+    />
+
+<EditText
+    android:id="@+id/name_value"
+    android:layout_width="match_parent"
+    android:layout_height="35dp"
+    android:text=""
+    />
+
+<View
+    android:layout_width="fill_parent"
+    android:layout_height="5dp"
+    android:paddingTop="15dp"
+    android:layout_marginTop="5dp"
+    android:paddingBottom="15dp"
+    android:layout_marginBottom="15dp"
+    android:background="@android:color/darker_gray"/>
+
+<TextView
+    android:id="@+id/address_label"
+    android:layout_width="match_parent"
+    android:layout_height="25dp"
+    android:text="Address:"
+    />
+
+<EditText
+    android:id="@+id/address_value"
+    android:layout_width="match_parent"
+    android:layout_height="35dp"
+    android:text=""
+    />
+
+<View
+    android:layout_width="fill_parent"
+    android:layout_height="5dp"
+    android:paddingTop="15dp"
+    android:layout_marginTop="5dp"
+    android:paddingBottom="15dp"
+    android:layout_marginBottom="15dp"
+    android:background="@android:color/darker_gray"/>
+
+<TextView
+    android:id="@+id/emergency_phone1_label"
+    android:layout_width="match_parent"
+    android:layout_height="25dp"
+    android:text="Emergency Contact 1:"
+    />
+
+<EditText
+    android:id="@+id/emergency_phone1_value"
+    android:layout_width="match_parent"
+    android:layout_height="35dp"
+    android:text=""
+    />
+
+<View
+    android:layout_width="fill_parent"
+    android:layout_height="5dp"
+    android:paddingTop="15dp"
+    android:layout_marginTop="5dp"
+    android:paddingBottom="15dp"
+    android:layout_marginBottom="15dp"
+    android:background="@android:color/darker_gray"/>
+
+<TextView
+    android:id="@+id/emergency_phone2_label"
+    android:layout_width="match_parent"
+    android:layout_height="25dp"
+    android:text="Emergency Contact 2:"
+    />
+
+<EditText
+    android:id="@+id/emergency_phone2_value"
+    android:layout_width="match_parent"
+    android:layout_height="35dp"
+    android:text=""
+    />
+
+<View
+    android:layout_width="fill_parent"
+    android:layout_height="5dp"
+    android:paddingTop="15dp"
+    android:layout_marginTop="5dp"
+    android:paddingBottom="15dp"
+    android:layout_marginBottom="15dp"
+    android:background="@android:color/darker_gray"/>
+
+<TextView
+    android:id="@+id/emergency_phone3_label"
+    android:layout_width="match_parent"
+    android:layout_height="25dp"
+    android:text="Emergency Contact 3:"
+    />
+
+<EditText
+    android:id="@+id/emergency_phone3_value"
+    android:layout_width="match_parent"
+    android:layout_height="35dp"
+    android:text=""
+    />
+
+<View
+    android:layout_width="fill_parent"
+    android:layout_height="5dp"
+    android:paddingTop="15dp"
+    android:layout_marginTop="5dp"
+    android:paddingBottom="15dp"
+    android:layout_marginBottom="15dp"
+    android:background="@android:color/darker_gray"/>
+
+<!--<TextView-->
+<!--android:id="@+id/help_unknown_label"-->
+<!--android:layout_width="match_parent"-->
+<!--android:layout_height="25dp"-->
+<!--android:text="Help Unknown People:"-->
+<!--/>-->
+
+<CheckBox
+    android:id="@+id/help_unknown_value"
+    android:layout_width="match_parent"
+    android:layout_height="35dp"
+    android:text="Help Unknown People"
+    />
+
+<View
+    android:layout_width="fill_parent"
+    android:layout_height="5dp"
+    android:paddingTop="15dp"
+    android:layout_marginTop="5dp"
+    android:paddingBottom="15dp"
+    android:layout_marginBottom="15dp"
+    android:background="@android:color/darker_gray"/>
+
+<!--<TextView-->
+<!--android:id="@+id/send_distress_unknown_label"-->
+<!--android:layout_width="match_parent"-->
+<!--android:layout_height="25dp"-->
+<!--android:text="Send Distress Messages to Unknown people:"-->
+/>
+
+<CheckBox
+    android:id="@+id/send_distress_unknown_value"
+    android:layout_width="match_parent"
+    android:layout_height="35dp"
+    android:text="Send Distress Messages to Unknown people"
+    />
+
+<View
+    android:layout_width="fill_parent"
+    android:layout_height="5dp"
+    android:paddingTop="15dp"
+    android:layout_marginTop="5dp"
+    android:paddingBottom="15dp"
+    android:layout_marginBottom="15dp"
+    android:background="@android:color/darker_gray"/>
+
+</LinearLayout>
