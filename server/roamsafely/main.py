@@ -31,9 +31,8 @@ def GetUserWithNumber(user_phone):
     results = q.fetch(limit=1)
     return results[0] if len(results)>0 else None
 
-def SendMessageToPhone(phone_number):
+def SendMessageToPhone(phone_number, lat, long):
   pass
-
 
 def GetNearestSquires(user):
   pass
@@ -41,14 +40,14 @@ def GetNearestSquires(user):
 def SendNotificationToSquiresForUser(nearest_squires, user):
   pass
 
-def PanicResponseForUser(user):
+def PanicResponseForUser(user, lat, long):
   # Get all phone numbers and send message
-  SendMessageToPhone(user.emergency_phone_1)
-  SendMessageToPhone(user.emergency_phone_2)
-  SendMessageToPhone(user.emergency_phone_3)
+  SendMessageToPhone(user.emergency_phone_1, lat, long)
+  SendMessageToPhone(user.emergency_phone_2, lat, long)
+  SendMessageToPhone(user.emergency_phone_3, lat, long)
   # Get all people in a radius of x miles
   nearest_squires = GetNearestSquires(user)
-  SendNotificationToSquiresForUser(nearest_squires, user)
+  SendNotificationToSquiresForUser(nearest_squires, user, lat, long)
   # Send a notification to all those people
     
 class NewUserHandler(webapp2.RequestHandler):
@@ -83,10 +82,11 @@ class UserGetHandler(webapp2.RequestHandler):
       self.response.write(NOT_FOUND)
 
 class PanicHandler(webapp2.RequestHandler):
-  def get(self, user_phone):
+  def get(self, user_phone, lat, long):
     user = GetUserWithNumber(user_phone)
     if user:
-      
+      PanicResponseForUser(user, lat, long)
+  
 class VerificationHandler(webapp2.RequestHandler):
   def get(self, user_phone, verification_code):
     user = GetUserWithNumber(user_phone)
@@ -114,5 +114,5 @@ app = webapp2.WSGIApplication([
     (r'/User/POST/(\d+)', UserUpdateHandler),
     (r'/User/GET/(\d+)', UserGetHandler),
     (r'/User/Verify/(\d+)/(\d+)', VerificationHandler),
-    (r'/User/Panic/(\d+)', PanicHandler)
+    (r'/User/Panic/(\d+)/(\d+)/(\d+)', PanicHandler)
 ], debug=True)
