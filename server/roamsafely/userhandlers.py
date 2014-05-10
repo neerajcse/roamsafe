@@ -187,7 +187,7 @@ class PanicInfoHandler(webapp2.RequestHandler):
       else:
         self.response.write("%s,%s,%s" % (user.last_known_latitude, user.last_known_longitude, user.last_known_time))
         return
-      
+    self.response.write("Bad call")  
       
 class VerificationHandler(webapp2.RequestHandler):
   def get(self, user_phone, verification_code):
