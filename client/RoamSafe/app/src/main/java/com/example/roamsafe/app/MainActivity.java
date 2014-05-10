@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.location.Location;
 import android.location.LocationListener;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -89,11 +90,19 @@ public class MainActivity extends ActionBarActivity implements
                 String yourNumber = mTelephonyMgr.getLine1Number();
                 String latitude = mCurrentLocation.getLatitude() + "";
                 String longitude = mCurrentLocation.getLongitude() + "";
-                // Call Rest API
+                // Call Rest API for PANIC Mode
                 Log.d("PANIC BUTTON PRESSED LOCATION", "Phone number: " + yourNumber +
                         "; Location:" + mCurrentLocation.getLatitude() +
                         ", " + mCurrentLocation.getLongitude());
                 new PostPanicMessage().execute(yourNumber, latitude, longitude);
+
+                // Call Emergency Number
+                String phno="6504229421";
+
+                Intent callIntent = new Intent(Intent.ACTION_CALL);
+                callIntent.setData(Uri.parse("tel:6504229421"));
+                callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(callIntent);
             }
         });
 
@@ -321,6 +330,9 @@ public class MainActivity extends ActionBarActivity implements
         }
 
         protected void onPostExecute(String result) {
+            if (!result.contains(";")) {
+                return;
+            }
             Log.d("FetchUnSafeLocations: onPostExecute result : ", result);
             String[] latLongs = result.substring(0, result.lastIndexOf(";")).split(";");
             for (int i = 0; i < latLongs.length; i++) {
