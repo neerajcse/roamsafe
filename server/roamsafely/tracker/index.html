@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0 }
+      #map-canvas { height: 100% }
+    </style>
+    <script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCFFMR2kvB83qITv0NT1-MXxipqNEBIU44&sensor=true">
+    </script>
+    <script type="text/javascript">
+      var marker;
+      var intervalRef;
+      var marker;
+      var params = {};
+      var map;
+      
+      function loadParams() {
+        if (location.search) {
+          var parts = location.search.substring(1).split('&');
+          for (var i = 0; i < parts.length; i++) {
+              var nv = parts[i].split('=');
+              if (!nv[0]) continue;
+              params[nv[0]] = nv[1] || true;
+          }
+        }
+      }
+      
+      function initialize() {
+        var mapOptions = {
+          center: new google.maps.LatLng(-34.397, 150.644),
+          zoom: 8
+        };
+        map = new google.maps.Map(document.getElementById("map-canvas"),
+            mapOptions);
+        marker = new google.maps.Marker({
+          title:"Last known location.",
+          map: map,
+          position: new google.maps.LatLng(-34.397, 150.644)
+        });
+        loadParams();
+        startListeningForLocationOfUser();
+      }
+      
+      function startListeningForLocationOfUser() {
+        if(params.user) {
+          updateWithLatestLocation();
+        }
+      }
+      
+      function updateWithLatestLocation() {
+        // Create the XHR object to do GET to /data resource  
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET","/User/Panic/GetLastPanicInfo/" + params.user,false);
+        // perform the work
+        xhr.send();
+        data = xhr.responseText;
+        if ( data == "Bad call") {
+          alert("The user send a distress call more than half an hour ago. The last known location is no more public.");
+          return;
+        } else {
+          var lat = float(data.split(",")[0]);
+          var lng = float(data.split(",")[1]);
+          var last_updated_at=data.split(",")[2];
+          marker.setPosition(new google.maps.LatLng(lat,lng));
+          setTimeout(updateWithLatestLocation, 10000);
+        }
+      }
+      
+      google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+  </head>
+  <body>
+    <div id="map-canvas"/>
+  </body>
+</html>

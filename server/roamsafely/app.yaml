@@ -24,6 +24,9 @@ handlers:
 - url: /favicon\.ico
   static_files: favicon.ico
   upload: favicon\.ico
+
+- url: /tracker
+  static_dir: tracker
   
 - url: .*
   script: main.app

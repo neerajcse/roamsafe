@@ -19,6 +19,7 @@ import json
 from models import *
 from twil import *
 import logging
+from datetime import datetime, timedelta
 
 NOT_FOUND = "The user asked for does not exist"
 USER_VERIFIED = "The user has already been verified"
@@ -103,6 +104,8 @@ def PanicResponseForUser(user, lat, long):
   nearest_squires = GetNearestSquires(user, lat, long)
   if user.send_distress_to_unknown_people:
     SendNotificationToSquiresForUser(nearest_squires, user, lat, long)
+  user.last_panic_time=datetime.now()
+  user.put()
 
     
 class NewUserHandler(webapp2.RequestHandler):
@@ -123,6 +126,7 @@ class UserUpdateHandler(webapp2.RequestHandler):
       update_json = json.loads(self.request.body)
       for property,value in update_json.items():
         setattr(user, property, value)
+      user.last_known_time=datetime.now()
       user.put()
       self.response.write(json.dumps(user.__dict__['_entity'], default=date_handler))
     else:
@@ -135,7 +139,7 @@ class UserGetHandler(webapp2.RequestHandler):
     if user:
       self.response.write(json.dumps(user.__dict__['_entity'], default=date_handler))
     else:
-      self.response.write(NOT_FOUND)
+      self.error(404)
 
 
 class PanicFromSMSHandler(webapp2.RequestHandler):
@@ -173,6 +177,18 @@ class PanicHandler(webapp2.RequestHandler):
       self.response.write("User does not exist")
 
 
+class PanicInfoHandler(webapp2.RequestHandler):
+  def get(self, user_phone):
+    user = GetUserWithNumber(user_phone)
+    if user:
+      if datetime.now() - user.last_panic_time > timedelta(minutes=30):
+        self.response.write("Bad call")
+        return
+      else:
+        self.response.write("%s,%s,%s" % (user.last_known_latitude, user.last_known_longitude, user.last_known_time))
+        return
+      
+      
 class VerificationHandler(webapp2.RequestHandler):
   def get(self, user_phone, verification_code):
     user = GetUserWithNumber(user_phone)

@@ -31,16 +31,19 @@ class User(db.Model):
   emergency_phone_2=db.PhoneNumberProperty(indexed=False)
   emergency_phone_3=db.PhoneNumberProperty(indexed=False)
   
-  last_known_latitude=db.Property(indexed=True)
+  last_known_latitude=db.FloatProperty(indexed=True)
   last_known_longitude=db.FloatProperty(indexed=True)
   last_known_time=db.DateTimeProperty(auto_now_add=True)
   
   is_verified=db.BooleanProperty(indexed=False, default=False)
+  last_panic_time=db.DateTimeProperty(auto_now_add=True)
 
 class SafeLocation(db.Model):
   latitude=db.FloatProperty(indexed=True)
   longitude=db.FloatProperty(indexed=True)
+  reported_time=db.DateTimeProperty(auto_now_add=True)
   
 class UnsafeLocation(db.Model):
   latitude=db.FloatProperty(indexed=True)
   longitude=db.FloatProperty(indexed=True)
+  reported_time=db.DateTimeProperty(auto_now_add=True)
