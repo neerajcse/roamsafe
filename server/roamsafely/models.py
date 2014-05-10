@@ -37,10 +37,10 @@ class User(db.Model):
   
   is_verified=db.BooleanProperty(indexed=False, default=False)
 
-class SafeLocations(db.Model):
+class SafeLocation(db.Model):
   latitude=db.FloatProperty(indexed=True)
   longitude=db.FloatProperty(indexed=True)
   
-class UnsafeLocations(db.Model):
+class UnsafeLocation(db.Model):
   latitude=db.FloatProperty(indexed=True)
   longitude=db.FloatProperty(indexed=True)

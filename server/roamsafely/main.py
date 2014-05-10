@@ -16,101 +16,29 @@
 #
 import webapp2
 import json
-from models import*
+from models import *
+from userhandlers import *
 
-NOT_FOUND = "The user asked for does not exist"
-USER_VERIFIED = "The user has already been verified"
-USER_VERIFICATION_SUCCESS="The user was verified successfully"
+def GetAllUnsafeLocationsWithin(southWestLat, southWestLong, northEastLat, northEastLong):
+  q = UnsafeLocation.all()
+  if southWestLong > northEastLong:
+    q.filter("longitude >=" , southWestLong)
+    q.filter("longitude <=" , 180)
+    q.filter("longitude >=" , -180)
+    q.filter("longitude <=", northEastLong)
+  else:
+    q.filter("longitude >=", southWestLong)
+    q.filter("longitude <=", northEastLong)
 
-def date_handler(obj):
-    return obj.isoformat() if hasattr(obj, 'isoformat') else obj
+  unsafeLocationsOnLong = q.fetch(limit=100)
+  unsafeLocations = [i for i in unsafeLocationsOnLong if i.latitude>southWestLat and i.latitude<northEastLat]
+  return unsafeLocations
 
-def GetUserWithNumber(user_phone):
-    q = User.all()
-    q.filter("phone_number =", user_phone)
-    results = q.fetch(limit=1)
-    return results[0] if len(results)>0 else None
-
-def SendMessageToPhone(phone_number, lat, long):
-  pass
-
-def GetNearestSquires(user):
-  pass
-
-def SendNotificationToSquiresForUser(nearest_squires, user, lat, long):
-  pass
-
-def UpdateUnsafeLocation(lat, long):
-  badLocation = UnsafeLocation()
-  badLocation.latitude = lat
-  badLocation.longitude = long
-  badLocation.put()
-  
-def PanicResponseForUser(user, lat, long):
-  # Update unsafe locations
-  UpdateUnsafeLocation(lat, long)
-  # Get all phone numbers and send message
-  SendMessageToPhone(user.emergency_phone_1, lat, long)
-  SendMessageToPhone(user.emergency_phone_2, lat, long)
-  SendMessageToPhone(user.emergency_phone_3, lat, long)
-  # Get all people in a radius of x miles
-  nearest_squires = GetNearestSquires(user)
-  SendNotificationToSquiresForUser(nearest_squires, user, lat, long)
-  # Send a notification to all those people
-    
-class NewUserHandler(webapp2.RequestHandler):
-  def post(self):
-    data = json.loads(self.request.body)
-    instance = User(**data)
-    if not GetUserWithNumber(instance.phone_number):
-      instance.put()
-      self.response.write("New user registered successfully.")
-    else:
-      self.response.write("User already exists")
-
-
-class UserUpdateHandler(webapp2.RequestHandler):
-  def post(self, user_phone):
-    user = GetUserWithNumber(user_phone)
-    if user:
-      update_json = json.loads(self.request.body)
-      for property,value in update_json.items():
-        setattr(user, property, value)
-      user.put()
-      self.response.write(json.dumps(user.__dict__['_entity'], default=date_handler))
-    else:
-      self.response.write(NOT_FOUND)
-
-class UserGetHandler(webapp2.RequestHandler):
-  def get(self, user_phone):
-    user = GetUserWithNumber(user_phone)
-    if user:
-      self.response.write(json.dumps(user.__dict__['_entity'], default=date_handler))
-    else:
-      self.response.write(NOT_FOUND)
-
-class PanicHandler(webapp2.RequestHandler):
-  def get(self, user_phone, lat, long):
-    user = GetUserWithNumber(user_phone)
-    if user:
-      PanicResponseForUser(user, lat, long)
-  
-class VerificationHandler(webapp2.RequestHandler):
-  def get(self, user_phone, verification_code):
-    user = GetUserWithNumber(user_phone)
-    if user.is_verified:
-      self.response.write(USER_VERIFIED)
-      return
-    else:
-      if verification_code == user.verification_code:
-        user.is_verified = True
-        self.response.write(USER_VERIFICATION_SUCCESS)
-        user.put()
-        return
-      else:
-        self.response.write(WRONG_VERIFICATION_CODE)
-        return
-    
+class UnsafeLocationsHandler(webapp2.RequestHandler):
+  def get(self, southWestLat, southWestLong, northEastLat, norttEastLong):
+    unsafeLocations = GetAllUnsafeLocationsWithin(float(southWestLat), float(southWestLong), float(northEastLat), float(norttEastLong))
+    for location in unsafeLocations:
+      self.response.write(str(location.latitude) + "," + str(location.longitude) + ";")
       
 class MainHandler(webapp2.RequestHandler):
     def get(self):
@@ -122,5 +50,6 @@ app = webapp2.WSGIApplication([
     (r'/User/POST/(\d+)', UserUpdateHandler),
     (r'/User/GET/(\d+)', UserGetHandler),
     (r'/User/Verify/(\d+)/(\d+)', VerificationHandler),
-    (r'/User/Panic/(\d+)/[+|-]?(\d+)/[+|-]?(\d+)', PanicHandler)
+    (r'/User/Panic/(\d+)/([+|-]?\d+)/([+|-]?\d+)', PanicHandler),
+    (r'/UnsafeLocations/([+|-]?\d+)/([+|-]?\d+)/([+|-]?\d+)/([+|-]?\d+)', UnsafeLocationsHandler)
 ], debug=True)
