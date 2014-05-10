@@ -21,9 +21,11 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -33,6 +35,11 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class MainActivity extends ActionBarActivity implements
         GooglePlayServicesClient.ConnectionCallbacks,
@@ -80,8 +87,8 @@ public class MainActivity extends ActionBarActivity implements
                 mTelephonyMgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
                 String yourNumber = mTelephonyMgr.getLine1Number();
-                String latitude = (int) mCurrentLocation.getLatitude() + "";
-                String longitude = (int) mCurrentLocation.getLongitude() + "";
+                String latitude = mCurrentLocation.getLatitude() + "";
+                String longitude = mCurrentLocation.getLongitude() + "";
                 // Call Rest API
                 Log.d("PANIC BUTTON PRESSED LOCATION", "Phone number: " + yourNumber +
                         "; Location:" + mCurrentLocation.getLatitude() +
@@ -290,13 +297,41 @@ public class MainActivity extends ActionBarActivity implements
             String responseText = null;
             try {
                 HttpResponse response = httpClient.execute(post, localContext);
-                responseText = response.getStatusLine().toString() + response.toString();
+                responseText = getASCIIContentFromEntity(response.getEntity());
             } catch (Exception e) {
                 responseText = e.getLocalizedMessage();
             }
             Log.d("FetchUnSafeLocations: Map Bounding Box : ", postUrl);
             Log.d("FetchUnSafeLocations: Map Bounding Box : ", responseText);
             return responseText;
+
+        }
+
+        protected String getASCIIContentFromEntity(HttpEntity entity) throws IllegalStateException,
+                IOException {
+            InputStream inputStream = entity.getContent();
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            String line = "";
+            String result = "";
+            while((line = bufferedReader.readLine()) != null)
+                result += line;
+
+            inputStream.close();
+            return result;
+        }
+
+        protected void onPostExecute(String result) {
+            Log.d("FetchUnSafeLocations: onPostExecute result : ", result);
+            String[] latLongs = result.substring(0, result.lastIndexOf(";")).split(";");
+            for (int i = 0; i < latLongs.length; i++) {
+                String[] strs = latLongs[i].split(",");
+                map.addMarker(new MarkerOptions()
+                        .position(new LatLng(Double.parseDouble(strs[0]),
+                                Double.parseDouble(strs[1])))
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                );
+
+            }
 
         }
 
