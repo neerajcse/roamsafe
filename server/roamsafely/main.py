@@ -37,10 +37,18 @@ def SendMessageToPhone(phone_number, lat, long):
 def GetNearestSquires(user):
   pass
 
-def SendNotificationToSquiresForUser(nearest_squires, user):
+def SendNotificationToSquiresForUser(nearest_squires, user, lat, long):
   pass
 
+def UpdateUnsafeLocation(lat, long):
+  badLocation = UnsafeLocation()
+  badLocation.latitude = lat
+  badLocation.longitude = long
+  badLocation.put()
+  
 def PanicResponseForUser(user, lat, long):
+  # Update unsafe locations
+  UpdateUnsafeLocation(lat, long)
   # Get all phone numbers and send message
   SendMessageToPhone(user.emergency_phone_1, lat, long)
   SendMessageToPhone(user.emergency_phone_2, lat, long)
@@ -114,5 +122,5 @@ app = webapp2.WSGIApplication([
     (r'/User/POST/(\d+)', UserUpdateHandler),
     (r'/User/GET/(\d+)', UserGetHandler),
     (r'/User/Verify/(\d+)/(\d+)', VerificationHandler),
-    (r'/User/Panic/(\d+)/(\d+)/(\d+)', PanicHandler)
+    (r'/User/Panic/(\d+)/[+|-]?(\d+)/[+|-]?(\d+)', PanicHandler)
 ], debug=True)
