@@ -57,15 +57,15 @@
         // perform the work
         xhr.send();
         data = xhr.responseText;
-        if ( data == "Bad call") {
-          alert("The user send a distress call more than half an hour ago. The last known location is no more public.");
-          return;
-        } else {
+        if ( data != "Bad call") {
           var lat = parseFloat(data.split(",")[0]);
           var lng = parseFloat(data.split(",")[1]);
           var last_updated_at=data.split(",")[2];
           marker.setPosition(new google.maps.LatLng(lat,lng));
           setTimeout(updateWithLatestLocation, 10000);
+        } else {
+          alert("The user send a distress call more than half an hour ago. The last known location is no more public.");
+          return;
         }
       }
       
