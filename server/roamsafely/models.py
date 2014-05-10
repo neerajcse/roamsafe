@@ -35,6 +35,7 @@ class User(db.Model):
   last_known_longitude=db.FloatProperty(indexed=True)
   last_known_time=db.DateTimeProperty(auto_now_add=True)
   
+  is_verified=db.BooleanProperty(indexed=False, default=False)
 
 class SafeLocations(db.Model):
   latitude=db.FloatProperty(indexed=True)
