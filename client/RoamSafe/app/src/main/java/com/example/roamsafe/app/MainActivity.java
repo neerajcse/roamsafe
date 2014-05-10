@@ -1,13 +1,18 @@
 package com.example.roamsafe.app;
 
+import android.content.Context;
 import android.content.IntentSender;
 import android.location.Location;
 import android.location.LocationListener;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -17,6 +22,15 @@ import com.google.android.gms.maps.*;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 
 public class MainActivity extends ActionBarActivity implements
         GooglePlayServicesClient.ConnectionCallbacks,
@@ -43,6 +57,36 @@ public class MainActivity extends ActionBarActivity implements
         map = ((MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map)).getMap();
         map.setMyLocationEnabled(true);
+
+        // Panic Button
+        Button button = (Button) findViewById(R.id.panicbutton);
+        button.setOnClickListener(new View.OnClickListener()
+        {
+            public void onClick(View v)
+            {
+                Location mCurrentLocation;
+                if (mLocationClient.isConnected()) {
+                    mCurrentLocation = mLocationClient.getLastLocation();
+                } else {
+                    // set a dummy lat/long if locationClient is not connected
+                    mCurrentLocation = new Location("");
+                    mCurrentLocation.setLatitude(0.0);
+                    mCurrentLocation.setLongitude(0.0);
+                }
+                // Get Phone Number
+                TelephonyManager mTelephonyMgr;
+                mTelephonyMgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+
+                String yourNumber = mTelephonyMgr.getLine1Number();
+                String latitude = (int) mCurrentLocation.getLatitude() + "";
+                String longitude = (int) mCurrentLocation.getLongitude() + "";
+                // Call Rest API
+                Log.d("PANIC BUTTON PRESSED LOCATION", "Phone number: " + yourNumber +
+                        "; Location:" + mCurrentLocation.getLatitude() +
+                        ", " + mCurrentLocation.getLongitude());
+                new PostPanicMessage().execute(yourNumber, latitude, longitude);
+            }
+        });
 
     }
 
@@ -179,6 +223,35 @@ public class MainActivity extends ActionBarActivity implements
                 Double.toString(location.getLatitude()) + "," +
                 Double.toString(location.getLongitude());
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
+
+    private class PostPanicMessage extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            String phoneNumber=params[0];
+            String latitude = params[1];
+            String longitude = params[2];
+
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpContext localContext = new BasicHttpContext();
+            String postUrl = String.format("http://roamsafely.appspot.com/User/Panic/%s/%s/%s",
+                    phoneNumber, latitude, longitude);
+            HttpGet post = new HttpGet(postUrl);
+            String responseText = null;
+            try {
+                HttpResponse response = httpClient.execute(post, localContext);
+                responseText = response.getStatusLine().toString();
+            } catch (Exception e) {
+                responseText = e.getLocalizedMessage();
+            }
+            Log.d("PANIC BUTTON PRESSED Post URL", postUrl);
+            Log.d("PANIC BUTTON PRESSED Response", responseText);
+            return responseText;
+
+        }
+
     }
 
 }
