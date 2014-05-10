@@ -31,7 +31,7 @@ class User(db.Model):
   emergency_phone_2=db.PhoneNumberProperty(indexed=False)
   emergency_phone_3=db.PhoneNumberProperty(indexed=False)
   
-  last_known_latitude=db.FloatProperty(indexed=True)
+  last_known_latitude=db.Property(indexed=True)
   last_known_longitude=db.FloatProperty(indexed=True)
   last_known_time=db.DateTimeProperty(auto_now_add=True)
   
