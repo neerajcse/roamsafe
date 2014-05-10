@@ -1,6 +1,7 @@
 package com.example.roamsafe.app;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.location.Location;
 import android.location.LocationListener;
@@ -88,6 +89,8 @@ public class MainActivity extends ActionBarActivity implements
             }
         });
 
+        startService(new Intent(this, UserLocationService.class));
+
     }
 
     @Override
@@ -119,15 +122,16 @@ public class MainActivity extends ActionBarActivity implements
         // Display the connection status
         Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
         Location mCurrentLocation = mLocationClient.getLastLocation();
-
-        LatLng markerLoc=new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
-        final CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(markerLoc)      // Sets the center of the map to Mountain View
-                .zoom(17)                   // Sets the zoom
-                .bearing(90)                // Sets the orientation of the camera to east
-                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
-                .build();
-        map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        if (mCurrentLocation != null) {
+            LatLng markerLoc = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
+            final CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(markerLoc)      // Sets the center of the map to Mountain View
+                    .zoom(17)                   // Sets the zoom
+                    .bearing(90)                // Sets the orientation of the camera to east
+                    .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+                    .build();
+            map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        }
     }
 
     /*
