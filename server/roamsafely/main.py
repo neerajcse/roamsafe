@@ -52,5 +52,6 @@ app = webapp2.WSGIApplication([
     (r'/User/GET/(\d+)', UserGetHandler),
     (r'/User/Verify/(\d+)/(\d+)', VerificationHandler),
     (r'/User/Panic/(\d+)/([+|-]?\d+.?\d*)/([+|-]?\d+.?\d*)', PanicHandler),
-    (r'/UnsafeLocations/([+|-]?\d+.?\d+)/([+|-]?\d+.?\d+)/([+|-]?\d+.?\d+)/([+|-]?\d+.?\d+)', UnsafeLocationsHandler)
+    (r'/UnsafeLocations/([+|-]?\d+.?\d+)/([+|-]?\d+.?\d+)/([+|-]?\d+.?\d+)/([+|-]?\d+.?\d+)', UnsafeLocationsHandler),
+    (r'/User/Panic/FromSMS', PanicFromSMSHandler)
 ], debug=True)

@@ -18,6 +18,7 @@ import webapp2
 import json
 from models import *
 from twil import *
+import logging
 
 NOT_FOUND = "The user asked for does not exist"
 USER_VERIFIED = "The user has already been verified"
@@ -37,10 +38,10 @@ def GetNearestSquires(user, lat, long):
   q = User.all()
   
   # Set the window
-  southWestLong = long - 2
-  northEastLong = long + 2
-  southWestLat = lat - 2
-  northEastLat = lat + 2
+  southWestLong = long - 0.1
+  northEastLong = long + 0.1
+  southWestLat = lat - 0.1
+  northEastLat = lat + 0.1
   
   if southWestLong > northEastLong:
     q.filter("last_known_longitude >=" , southWestLong)
@@ -56,30 +57,53 @@ def GetNearestSquires(user, lat, long):
   nearestActiveSquires = [i for i in nearestSquires if i.help_unknown_people]
   return nearestActiveSquires
 
+
 def SendNotificationToSquiresForUser(nearest_squires, user, lat, long):
   pass
+
 
 def UpdateUnsafeLocation(lat, long):
   badLocation = UnsafeLocation()
   badLocation.latitude = float(lat)
   badLocation.longitude = float(long)
   badLocation.put()
-  
+
+def GenerateMessageForPhone(**keywords):
+  phone=keywords.get("phone")
+  lat=keywords.get("lat")
+  long=keywords.get("long")
+  custom_location=keywords.get("custom")
+  to_friend=keywords.get("to_friend")
+  if lat and long:
+    return "[URGENT] Distress call from %s. Locate them at http://maps.google.com/?q=%s,%s"% (phone,lat,long)
+  else:
+    return "[URGENT] Distress call from %s. Locate them at http://maps.google.com/?q=%s"% (phone,custom_location)
+
+def SendMessageToEmergencyContacts(user, message):
+  if user.emergency_phone_1:
+    SendMessageToPhone(user.emergency_phone_1, message)
+  if user.emergency_phone_2:
+    SendMessageToPhone(user.emergency_phone_2, message)
+  if user.emergency_phone_3:
+    SendMessageToPhone(user.emergency_phone_3, message)
+
+
+def SMSPanicResponseForUser(user, custom_message):
+  message = GenerateMessageForPhone(phone=user.phone_number, custom_location=custom_message)
+  SendMessageToEmergencyContacts(user, message)
+
+
 def PanicResponseForUser(user, lat, long):
   # Update unsafe locations
   UpdateUnsafeLocation(lat, long)
   # Get all phone numbers and send message
-  if user.emergency_phone_1:
-    SendMessageToPhone(user.emergency_phone_1, lat, long)
-  if user.emergency_phone_2
-    SendMessageToPhone(user.emergency_phone_2, lat, long)
-  if user.emergency_phone_3
-    SendMessageToPhone(user.emergency_phone_3, lat, long)
+  message = GenerateMessageForPhone(phone=user.phone_number, lat=lat, long=long)
+  SendMessageToEmergencyContacts(user, message)
   # Get all people in a radius of x miles
   nearest_squires = GetNearestSquires(user, lat, long)
   if user.send_distress_to_unknown_people:
     SendNotificationToSquiresForUser(nearest_squires, user, lat, long)
-  # Send a notification to all those people
+
     
 class NewUserHandler(webapp2.RequestHandler):
   def post(self):
@@ -104,6 +128,7 @@ class UserUpdateHandler(webapp2.RequestHandler):
     else:
       self.response.write(NOT_FOUND)
 
+
 class UserGetHandler(webapp2.RequestHandler):
   def get(self, user_phone):
     user = GetUserWithNumber(user_phone)
@@ -112,6 +137,33 @@ class UserGetHandler(webapp2.RequestHandler):
     else:
       self.response.write(NOT_FOUND)
 
+
+class PanicFromSMSHandler(webapp2.RequestHandler):
+  def get(self):
+    text = self.request.get("text")
+    parts = text.split(",")
+    phone_number = parts[0]
+    user = GetUserWithNumber(phone_number)
+    latitude = None
+    longitude = None
+    if not user:
+      self.response.write("User with phone %s does not exist" % phone_number)
+      return
+    if len(parts) > 1:
+      latitude=parts[1]
+    if len(parts) > 2:
+      longitude=parts[2]
+    if latitude and longitude:
+      logging.debug("Sending to normal response as lat long available")
+      self.response.write("Normal response sent")
+      PanicResponseForUser(user, float(latitude), float(longitude))
+    elif latitude:
+      logging.debug("sending to sms response")
+      self.response.write("SMS response sent")
+      SMSPanicResponseForUser(user, latitude)
+      
+
+   
 class PanicHandler(webapp2.RequestHandler):
   def get(self, user_phone, lat, long):
     user = GetUserWithNumber(user_phone)
@@ -119,7 +171,8 @@ class PanicHandler(webapp2.RequestHandler):
       PanicResponseForUser(user, float(lat), float(long))
     else:
       self.response.write("User does not exist")
-  
+
+
 class VerificationHandler(webapp2.RequestHandler):
   def get(self, user_phone, verification_code):
     user = GetUserWithNumber(user_phone)
