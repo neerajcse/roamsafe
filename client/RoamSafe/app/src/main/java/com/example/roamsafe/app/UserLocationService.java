@@ -71,7 +71,7 @@ public class UserLocationService extends Service {
         locationManager = (LocationManager) getApplicationContext()
                 .getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                2000, 0, listener);
+                10000, 0, listener);
 
     }
 

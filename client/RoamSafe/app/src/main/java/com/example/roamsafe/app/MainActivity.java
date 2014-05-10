@@ -23,6 +23,7 @@ import com.google.android.gms.maps.*;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -131,6 +132,18 @@ public class MainActivity extends ActionBarActivity implements
                     .tilt(30)                   // Sets the tilt of the camera to 30 degrees
                     .build();
             map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+            map.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+                @Override
+                public void onCameraChange(CameraPosition position) {
+                    LatLngBounds bounds = map.getProjection().getVisibleRegion().latLngBounds;
+                    new FetchUnSafeLocations().execute(bounds.southwest.latitude + "",
+                            bounds.southwest.longitude + "",
+                            bounds.northeast.latitude + "",
+                            bounds.northeast.longitude + "");
+                }
+            });
+
         }
     }
 
@@ -226,7 +239,6 @@ public class MainActivity extends ActionBarActivity implements
         String msg = "Updated Location: " +
                 Double.toString(location.getLatitude()) + "," +
                 Double.toString(location.getLongitude());
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
     private class PostPanicMessage extends AsyncTask<String, Void, String> {
@@ -252,6 +264,38 @@ public class MainActivity extends ActionBarActivity implements
             }
             Log.d("PANIC BUTTON PRESSED Post URL", postUrl);
             Log.d("PANIC BUTTON PRESSED Response", responseText);
+            return responseText;
+
+        }
+
+    }
+
+    private class FetchUnSafeLocations extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            String swLat=params[0];
+            String swLong = params[1];
+            String neLat = params[2];
+            String neLong = params[3];
+
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpContext localContext = new BasicHttpContext();
+            String postUrl = String.format(
+                    "http://roamsafely.appspot.com/UnsafeLocations/%s/%s/%s/%s",
+                    swLat, swLong,
+                    neLat, neLong);
+            HttpGet post = new HttpGet(postUrl);
+            String responseText = null;
+            try {
+                HttpResponse response = httpClient.execute(post, localContext);
+                responseText = response.getStatusLine().toString() + response.toString();
+            } catch (Exception e) {
+                responseText = e.getLocalizedMessage();
+            }
+            Log.d("FetchUnSafeLocations: Map Bounding Box : ", postUrl);
+            Log.d("FetchUnSafeLocations: Map Bounding Box : ", responseText);
             return responseText;
 
         }
