@@ -18,6 +18,7 @@ import webapp2
 import json
 from models import *
 from userhandlers import *
+from twil import *
 
 def GetAllUnsafeLocationsWithin(southWestLat, southWestLong, northEastLat, northEastLong):
   q = UnsafeLocation.all()
@@ -44,6 +45,10 @@ class MainHandler(webapp2.RequestHandler):
     def get(self):
         self.response.write('A group of monkeys is working on stuff which will help people stay safe. We will be back soon.')
 
+class SendMessageHandler(webapp2.RequestHandler):
+  def get(self, phone_number):
+    self.response.write(SendMessageToPhone(phone_number))
+      
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
     ('/User/PUT', NewUserHandler),
@@ -51,5 +56,6 @@ app = webapp2.WSGIApplication([
     (r'/User/GET/(\d+)', UserGetHandler),
     (r'/User/Verify/(\d+)/(\d+)', VerificationHandler),
     (r'/User/Panic/(\d+)/([+|-]?\d+)/([+|-]?\d+)', PanicHandler),
-    (r'/UnsafeLocations/([+|-]?\d+.?\d+)/([+|-]?\d+.?\d+)/([+|-]?\d+.?\d+)/([+|-]?\d+.?\d+)', UnsafeLocationsHandler)
+    (r'/UnsafeLocations/([+|-]?\d+.?\d+)/([+|-]?\d+.?\d+)/([+|-]?\d+.?\d+)/([+|-]?\d+.?\d+)', UnsafeLocationsHandler),
+    (r'/SendMessage/(\+?\d+)', SendMessageHandler)
 ], debug=True)

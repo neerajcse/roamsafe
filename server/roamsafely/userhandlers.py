@@ -17,6 +17,7 @@
 import webapp2
 import json
 from models import *
+from twil import *
 
 NOT_FOUND = "The user asked for does not exist"
 USER_VERIFIED = "The user has already been verified"
@@ -32,9 +33,6 @@ def GetUserWithNumber(user_phone):
     results = q.fetch(limit=1)
     return results[0] if len(results)>0 else None
 
-def SendMessageToPhone(phone_number, lat, long):
-  pass
-
 def GetNearestSquires(user, lat, long):
   q = User.all()
   
@@ -42,7 +40,7 @@ def GetNearestSquires(user, lat, long):
   southWestLong = long - 2
   northEastLong = long + 2
   southWestLat = lat - 2
-  southEastLong = lat + 2
+  northEastLat = lat + 2
   
   if southWestLong > northEastLong:
     q.filter("last_known_longitude >=" , southWestLong)
