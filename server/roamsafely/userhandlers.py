@@ -69,9 +69,12 @@ def PanicResponseForUser(user, lat, long):
   # Update unsafe locations
   UpdateUnsafeLocation(lat, long)
   # Get all phone numbers and send message
-  SendMessageToPhone(user.emergency_phone_1, lat, long)
-  SendMessageToPhone(user.emergency_phone_2, lat, long)
-  SendMessageToPhone(user.emergency_phone_3, lat, long)
+  if user.emergency_phone_1:
+    SendMessageToPhone(user.emergency_phone_1, lat, long)
+  if user.emergency_phone_2
+    SendMessageToPhone(user.emergency_phone_2, lat, long)
+  if user.emergency_phone_3
+    SendMessageToPhone(user.emergency_phone_3, lat, long)
   # Get all people in a radius of x miles
   nearest_squires = GetNearestSquires(user, lat, long)
   if user.send_distress_to_unknown_people:
