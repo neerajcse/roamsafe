@@ -68,6 +68,7 @@ public class MainActivity extends ActionBarActivity implements
                 .findFragmentById(R.id.map)).getMap();
         map.setMyLocationEnabled(true);
 
+
         // Panic Button
         Button button = (Button) findViewById(R.id.panicbutton);
         button.setOnClickListener(new View.OnClickListener()
