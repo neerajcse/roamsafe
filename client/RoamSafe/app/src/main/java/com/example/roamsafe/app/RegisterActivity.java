@@ -30,6 +30,8 @@ import org.json.JSONObject;
 
 public class RegisterActivity extends Activity {
 
+    boolean userRegistered = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,10 +123,9 @@ public class RegisterActivity extends Activity {
 
         protected void onPostExecute(String result) {
             if (!result.contains("200")) {
-                return;
+                userRegistered = false;
             } else {
-                Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
-                startActivity(intent);
+                userRegistered = true;
             }
         }
 
