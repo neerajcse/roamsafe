@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -42,10 +43,11 @@ public class IncomingSms extends BroadcastReceiver {
                     String phoneNumber = currentMessage.getDisplayOriginatingAddress();
 
                     String senderNum = phoneNumber;
+                    senderNum = senderNum.replace("+", "");
                     String message = currentMessage.getDisplayMessageBody();
 
                     Log.i("SmsReceiver", "senderNum: " + senderNum + "; message: " + message);
-                    new SendPanicSMSRequest().execute(message);
+                    new SendPanicSMSRequest().execute(senderNum + "," + message);
 
                 } // end for loop
             } // bundle is null
@@ -65,12 +67,9 @@ public class IncomingSms extends BroadcastReceiver {
             HttpClient httpClient = new DefaultHttpClient();
             HttpContext localContext = new BasicHttpContext();
             String postUrl = null;
-            try {
-                postUrl = String.format("http://roamsafely.appspot.com/User/Panic/FromSMS?text=%s",
-                        URLEncoder.encode(message, "utf-8"));
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+            postUrl = String.format("http://roamsafely.appspot.com/User/Panic/FromSMS?text=%s",
+                    TextUtils.htmlEncode(message));
+
             HttpGet getRequest = new HttpGet(postUrl);
             String responseText = null;
             try {
@@ -86,12 +85,11 @@ public class IncomingSms extends BroadcastReceiver {
         }
 
         protected void onPostExecute(String result) {
-            if (!result.contains("200")) {
+            if (result.contains("200")) {
                 return;
             } else {
                 Log.d("Failed panic from sms", result);
             }
-
 
         }
 
