@@ -100,10 +100,10 @@ public class MainActivity extends ActionBarActivity implements
                 new PostPanicMessage().execute(yourNumber, latitude, longitude);
 
                 // Call Emergency Number
-                String phno="6504229421";
+                String hotLinePhoneNumber ="6504229421";
 
                 Intent callIntent = new Intent(Intent.ACTION_CALL);
-                callIntent.setData(Uri.parse("tel:6504229421"));
+                callIntent.setData(Uri.parse("tel:" + hotLinePhoneNumber));
                 callIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(callIntent);
             }
@@ -262,24 +262,24 @@ public class MainActivity extends ActionBarActivity implements
 
     private class PostPanicMessage extends AsyncTask<String, Void, String> {
 
-        private String phoneNumber;
+        private String panicedPhoneNumber;
         private String latitude;
         private String longitude;
 
         @Override
         protected String doInBackground(String... params) {
 
-            phoneNumber=params[0];
+            panicedPhoneNumber=params[0];
             latitude = params[1];
             longitude = params[2];
 
             HttpClient httpClient = new DefaultHttpClient();
             HttpContext localContext = new BasicHttpContext();
-            String postUrl = String.format("http://roamsafely.appspot.com/User/Panic/%s/%s/%s",
-                    phoneNumber, latitude, longitude);
+//            String postUrl = String.format("http://roamsafely.appspot.com/User/Panic/%s/%s/%s",
+//                    panicedPhoneNumber, latitude, longitude);
             // Dummy Wrong url for post to fail when sms would be sent to hotline number.
-//            String postUrl = String.format("http://roamsafely.appspot.com/User/Panic/WHATEVER/%s/%s/%s",
-//                    phoneNumber, latitude, longitude);
+            String postUrl = String.format("http://roamsafely.appspot.com/User/Panic/WHATEVER/%s/%s/%s",
+                    panicedPhoneNumber, latitude, longitude);
             HttpGet post = new HttpGet(postUrl);
             String responseText = null;
             try {
@@ -297,16 +297,16 @@ public class MainActivity extends ActionBarActivity implements
         protected void onPostExecute(String result) {
             // send sms if sending to server failed
             if (!result.contains("200")) {
-                String phoneNumber = "6504229421";
+                String hotLinePhoneNumber = "6504229421";
                 String message = String.format(
-                        "Panic : Person with phone number %s ; location %s, %s",
-                        phoneNumber,
+                        "%s,%s,%s",
+                        panicedPhoneNumber,
                         latitude,
                         longitude);
 
                 SmsManager smsManager = SmsManager.getDefault();
                 ArrayList<String> parts = smsManager.divideMessage(message);
-                smsManager.sendMultipartTextMessage(phoneNumber, null, parts, null, null);
+                smsManager.sendMultipartTextMessage(hotLinePhoneNumber, null, parts, null, null);
             }
 
         }
