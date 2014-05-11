@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
@@ -41,6 +42,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 public class MainActivity extends ActionBarActivity implements
         GooglePlayServicesClient.ConnectionCallbacks,
@@ -260,17 +262,24 @@ public class MainActivity extends ActionBarActivity implements
 
     private class PostPanicMessage extends AsyncTask<String, Void, String> {
 
+        private String phoneNumber;
+        private String latitude;
+        private String longitude;
+
         @Override
         protected String doInBackground(String... params) {
 
-            String phoneNumber=params[0];
-            String latitude = params[1];
-            String longitude = params[2];
+            phoneNumber=params[0];
+            latitude = params[1];
+            longitude = params[2];
 
             HttpClient httpClient = new DefaultHttpClient();
             HttpContext localContext = new BasicHttpContext();
             String postUrl = String.format("http://roamsafely.appspot.com/User/Panic/%s/%s/%s",
                     phoneNumber, latitude, longitude);
+            // Dummy Wrong url for post to fail when sms would be sent to hotline number.
+//            String postUrl = String.format("http://roamsafely.appspot.com/User/Panic/WHATEVER/%s/%s/%s",
+//                    phoneNumber, latitude, longitude);
             HttpGet post = new HttpGet(postUrl);
             String responseText = null;
             try {
@@ -282,6 +291,23 @@ public class MainActivity extends ActionBarActivity implements
             Log.d("PANIC BUTTON PRESSED Post URL", postUrl);
             Log.d("PANIC BUTTON PRESSED Response", responseText);
             return responseText;
+
+        }
+
+        protected void onPostExecute(String result) {
+            // send sms if sending to server failed
+            if (!result.contains("200")) {
+                String phoneNumber = "6504229421";
+                String message = String.format(
+                        "Panic : Person with phone number %s ; location %s, %s",
+                        phoneNumber,
+                        latitude,
+                        longitude);
+
+                SmsManager smsManager = SmsManager.getDefault();
+                ArrayList<String> parts = smsManager.divideMessage(message);
+                smsManager.sendMultipartTextMessage(phoneNumber, null, parts, null, null);
+            }
 
         }
 
