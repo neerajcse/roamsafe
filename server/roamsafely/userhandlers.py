@@ -60,7 +60,12 @@ def GetNearestSquires(user, lat, long):
 
 
 def SendNotificationToSquiresForUser(nearest_squires, user, lat, long):
-  pass
+  try:
+    message = GenerateMessageForPhone(phone=user.phone_number, lat=lat, long=long)
+    for squire in nearest_squires:
+      SendMessageToPhone(squire.phone_number, message)
+  except:
+    pass
 
 
 def UpdateUnsafeLocation(lat, long):
