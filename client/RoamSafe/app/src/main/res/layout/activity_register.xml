@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scroll"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content">
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="match_parent"
@@ -22,11 +27,7 @@ tools:context="com.example.roamsafe.app.RegisterActivity"
     android:text="xxx-xxx-xxxx"
     />
 
-    <Button
-        android:id="@+id/register"
-        android:text="Register"
-        android:layout_width="match_parent"
-        android:layout_height="60dp" />
+
 
 <View
     android:layout_width="fill_parent"
@@ -94,6 +95,7 @@ tools:context="com.example.roamsafe.app.RegisterActivity"
     android:id="@+id/emergency_phone1_value"
     android:layout_width="match_parent"
     android:layout_height="35dp"
+    android:inputType="number"
     android:text=""
     />
 
@@ -117,6 +119,7 @@ tools:context="com.example.roamsafe.app.RegisterActivity"
     android:id="@+id/emergency_phone2_value"
     android:layout_width="match_parent"
     android:layout_height="35dp"
+    android:inputType="number"
     android:text=""
     />
 
@@ -140,6 +143,7 @@ tools:context="com.example.roamsafe.app.RegisterActivity"
     android:id="@+id/emergency_phone3_value"
     android:layout_width="match_parent"
     android:layout_height="35dp"
+    android:inputType="number"
     android:text=""
     />
 
@@ -151,13 +155,6 @@ tools:context="com.example.roamsafe.app.RegisterActivity"
     android:paddingBottom="15dp"
     android:layout_marginBottom="15dp"
     android:background="@android:color/darker_gray"/>
-
-<!--<TextView-->
-<!--android:id="@+id/help_unknown_label"-->
-<!--android:layout_width="match_parent"-->
-<!--android:layout_height="25dp"-->
-<!--android:text="Help Unknown People:"-->
-<!--/>-->
 
 <CheckBox
     android:id="@+id/help_unknown_value"
@@ -175,13 +172,6 @@ tools:context="com.example.roamsafe.app.RegisterActivity"
     android:layout_marginBottom="15dp"
     android:background="@android:color/darker_gray"/>
 
-<!--<TextView-->
-<!--android:id="@+id/send_distress_unknown_label"-->
-<!--android:layout_width="match_parent"-->
-<!--android:layout_height="25dp"-->
-<!--android:text="Send Distress Messages to Unknown people:"-->
-/>
-
 <CheckBox
     android:id="@+id/send_distress_unknown_value"
     android:layout_width="match_parent"
@@ -198,4 +188,11 @@ tools:context="com.example.roamsafe.app.RegisterActivity"
     android:layout_marginBottom="15dp"
     android:background="@android:color/darker_gray"/>
 
+    <Button
+        android:id="@+id/register"
+        android:text="Register"
+        android:layout_width="match_parent"
+        android:layout_height="60dp" />
+
 </LinearLayout>
+</ScrollView>

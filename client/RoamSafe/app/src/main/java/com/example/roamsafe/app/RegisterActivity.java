@@ -3,8 +3,7 @@ package com.example.roamsafe.app;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.location.Location;
-import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -12,6 +11,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 
 
 public class RegisterActivity extends Activity {
@@ -20,6 +27,14 @@ public class RegisterActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+
+        // Get Phone Number
+        TelephonyManager mTelephonyMgr;
+        mTelephonyMgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        String yourNumber = mTelephonyMgr.getLine1Number();
+
+        TextView phoneNumberTextView = (TextView)findViewById(R.id.phone_value);
+        phoneNumberTextView.setText(yourNumber);
 
         // Panic Button
         Button button = (Button) findViewById(R.id.register);
@@ -32,8 +47,10 @@ public class RegisterActivity extends Activity {
             }
         });
 
-    }
+        // check if the user is registered
+        new CheckUserRegistration().execute(yourNumber);
 
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -53,4 +70,43 @@ public class RegisterActivity extends Activity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    private class CheckUserRegistration extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            String phoneNumber=params[0];
+
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpContext localContext = new BasicHttpContext();
+            String postUrl = String.format("http://roamsafely.appspot.com/User/GET/%s",
+                    phoneNumber);
+            HttpGet post = new HttpGet(postUrl);
+            String responseText = null;
+            try {
+                HttpResponse response = httpClient.execute(post, localContext);
+                responseText = response.getStatusLine().toString();
+            } catch (Exception e) {
+                responseText = e.getLocalizedMessage();
+            }
+            Log.d("CheckUserRegistration Post URL", postUrl);
+            Log.d("CheckUserRegistration Response", responseText);
+            return responseText;
+
+        }
+
+        protected void onPostExecute(String result) {
+            if (!result.contains("200")) {
+                return;
+            } else {
+                Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+
+
+        }
+
+    }
+
 }
